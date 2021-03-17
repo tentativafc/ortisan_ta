@@ -1,5 +1,5 @@
 import pandas as pd
-from analysis import bollinger_bands, sma, max_rolling
+from .analysis import bollinger_bands, sma, max_rolling
 
 
 def bollinger_bands_strategy(close_prices: pd.Series, current_close_price: float, period=10, std_band: float = 2.0):
@@ -12,9 +12,14 @@ def bollinger_bands_strategy(close_prices: pd.Series, current_close_price: float
     :return: 1(buy signal), -1(sell signal) or 0(do nothing)
     """
     bands_df = bollinger_bands(close_prices, period=period, std_band=std_band)
-    last_bb = bands_df[-1]
-    return 1 if current_close_price < last_bb['down'] elif current_close_price > last_bb['up'] else 0
-
+    last_bb = bands_df.iloc[-1]
+    
+    if current_close_price < last_bb['down']:
+        return 1
+    elif current_close_price > last_bb['up']:
+        return -1
+    else:
+        return 0
 
 def key_reversal_days_down(close_prices: pd.Series, high_prices: pd.Series, low_prices: pd.Series, period=10):
     """
@@ -29,4 +34,4 @@ def key_reversal_days_down(close_prices: pd.Series, high_prices: pd.Series, low_
     sma_close_2_n = sma(close_prices.shift(2), period)
     highest_1_n = high_prices.shift(1).rolling(period).apply(max_rolling, raw=True)
     low_shifted_1 = low_prices.shift(1)
-    return (close_prices > sma_close_shifted) & (high_prices >= highest_1_n) & (low < low_shifted_1) & (close < close_shifted_1)
+    return (close_prices > sma_close_2_n) & (high_prices >= highest_1_n) & (low_prices < low_shifted_1) & (close_prices < close_shifted_1)
