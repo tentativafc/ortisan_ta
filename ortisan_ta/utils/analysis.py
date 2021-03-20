@@ -88,6 +88,11 @@ def bollinger_bands(serie: pd.Series, period=10, std_band=2):
 def log_returns(serie: pd.Series, period=1):
     return np.log(prices) - np.log(prices.shift(period))
 
+def cumulative_log_returns(serie: pd.Series, period=1):
+    lr = log_returns(serie, period)
+    cum_clr = lr.cumsum()[-1]
+    return np.exp(cum_clr) - 1
+
 def hedge_ratio_price_ratio(serie_a: pd.Series, serie_b: pd.Series):
     return (serie_b / serie_a).mean()
 
